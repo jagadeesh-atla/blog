@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="" >
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="generator" content="pandoc" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+        <meta name="author" content="jagadeesh-atla" />
+            <meta name="dcterms.date" content="2025-03-01" />
+                <title>A note on Bit Manipulation</title>
+        <link rel="stylesheet" href="css/theme.css" />
+        <link rel="stylesheet" href="css/pygments.css" />
+            <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+        </head>
+
+<body>
+    
+        <img src="./img/01-cover-image.jpg" alt=""
+        style="width: 100vw; height: 30vh; object-fit: cover; object-position: center; display: block; margin: 0; padding: 0; border-radius: 0; top: 0; left: 0;">
+    
+    <header>
+        <h1 class="title">A note on Bit Manipulation</h1>
+        <blockquote class="metadata">
+                                    <p class="author">
+                                jagadeesh-atla
+                            </p>
+                                    <p class="date before-toc"><time datetime="01 March 2025">01 March 2025</time></p>
+                    </blockquote>
+    </header>
+
+        <nav id="TOC" role="doc-toc">
+                <strong>Contents</strong><label for="contents">☰</label>
+        <input type="checkbox" id="contents">
+        <ul>
+        <li><a href="#introduction" id="toc-introduction">Introduction</a>
+        <ul>
+        <li><a href="#number-systems" id="toc-number-systems">Number Systems</a>
+        <ul>
+        <li><a href="#representation-in-base-b" id="toc-representation-in-base-b">Representation in Base-B</a></li>
+        <li><a href="#binary-system" id="toc-binary-system">Binary System</a></li>
+        </ul></li>
+        </ul></li>
+        <li><a href="#bit-representation" id="toc-bit-representation">Bit Representation</a></li>
+        <li><a href="#bit-operations" id="toc-bit-operations">Bit Operations</a>
+        <ul>
+        <li><a href="#and-operation" id="toc-and-operation">And operation</a></li>
+        <li><a href="#or-operation" id="toc-or-operation">Or operation</a></li>
+        <li><a href="#xor-operation" id="toc-xor-operation">Xor operation</a></li>
+        <li><a href="#not-operation" id="toc-not-operation">Not Operation</a></li>
+        <li><a href="#bit-shifts" id="toc-bit-shifts">Bit Shifts</a>
+        <ul>
+        <li><a href="#left-bit-shift" id="toc-left-bit-shift">Left Bit Shift (<code>&lt;&lt;</code>)</a></li>
+        <li><a href="#right-bit-shift" id="toc-right-bit-shift">Right Bit Shift (<code>&gt;&gt;</code>)</a></li>
+        </ul></li>
+        </ul></li>
+        <li><a href="#applications-tricks" id="toc-applications-tricks">Applications / Tricks</a>
+        <ul>
+        <li><a href="#application-to-arithmetic" id="toc-application-to-arithmetic">Application to Arithmetic</a></li>
+        <li><a href="#application-to-sets-bitmasking" id="toc-application-to-sets-bitmasking">Application to sets (Bitmasking)</a></li>
+        <li><a href="#c-libraries" id="toc-c-libraries">C++ Libraries</a></li>
+        <li><a href="#additional-tricks" id="toc-additional-tricks">Additional tricks</a></li>
+        </ul></li>
+        </ul>
+    </nav>
+    
+    <main>
+        <h1 id="introduction">Introduction</h1>
+        <p>All data in computer programs is internally stored as bits, i.e., as numbers 0 and 1. This chapter discusses the bit representation of integers, and shows examples of how to use bit operations. It turns out that there are many uses for bit manipulation in algorithm programming.</p>
+        <h2 id="number-systems">Number Systems</h2>
+        <h3 id="representation-in-base-b">Representation in Base-B</h3>
+        <p>A number in base-B can be expressed as:</p>
+        <p><span class="math display">\[
+            N = \sum_{i=0}^{n} d_i \, B^i, \quad \text{with } 0 \leq d_i &lt; B.
+        \]</span></p>
+        <ul>
+        <li><strong>Binary (Base-2)</strong>: Uses only <code>0</code>s and <code>1</code>s; the fundamental langauge of computers.</li>
+        <li><strong>Decimal (Base-10)</strong>: Commonly used by humans for everyday calucaltions.</li>
+        <li><strong>Hexadecimal (Base-16)</strong>: Offers a compact way to represent binary data, simpilifying debugging and memory addressing.</li>
+        </ul>
+        <div class="sourceCode" id="cb1"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> num<span class="op">;</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> base<span class="op">;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>stack<span class="op">&lt;</span><span class="dt">int</span><span class="op">&gt;</span> st<span class="op">;</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="op">(</span>num<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    st<span class="op">.</span>push<span class="op">(</span>num <span class="op">%</span> base<span class="op">);</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    num <span class="op">/=</span> base<span class="op">;</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="op">(</span><span class="kw">not</span> st<span class="op">.</span>empty<span class="op">())</span> <span class="op">{</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">&quot;</span><span class="sc">%d</span><span class="st">&quot;</span><span class="op">,</span> st<span class="op">.</span>top<span class="op">());</span> st<span class="op">.</span>pop<span class="op">();</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> printf<span class="op">(</span><span class="ch">&#39;</span><span class="sc">\n</span><span class="ch">&#39;</span><span class="op">);</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co">// For Binary format specification in few compilers. (not standard.)</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>printf<span class="op">(</span><span class="st">&quot;</span><span class="sc">%b</span><span class="st">&quot;</span><span class="op">,</span> <span class="dv">12</span><span class="op">);</span></span></code></pre></div>
+        <h3 id="binary-system">Binary System</h3>
+        <p>In binary (<span class="math inline">\(B = 2\)</span>), a number is represented as:</p>
+        <p><span class="math display">\[
+        N = \sum_{i=0}^{n} b_i \, 2^i, \quad \text{where } b_i \in \{0, 1\}.
+        \]</span></p>
+        <p>For example, the binary number <span class="math inline">\(1011_2\)</span> can be evaluated as:</p>
+        <p><span class="math display">\[
+        1011_2 = 1 \times 2^3 + 0 \times 2^2 + 1 \times 2^1 + 1 \times 2^0 = 8 + 0 + 2 + 1 = 11_{10}.
+        \]</span></p>
+        <h4 id="s-complement-representation">2’s Complement Representation</h4>
+        <p>2’s complement is a method to represent negative numbers in binary. The steps are:</p>
+        <ol type="1">
+        <li><strong>Invert all bits</strong> (change <code>0</code> to <code>1</code> and <code>1</code> to <code>0</code>).</li>
+        <li><strong>Add 1</strong> to the inverted number.</li>
+        </ol>
+        <p><strong>Example:</strong> Representing <code>-5</code> in a 4-bit system:</p>
+        <ul>
+        <li><code>5</code> in 4-bit binary: <span class="math inline">\(0101_2\)</span>.</li>
+        <li>Inverting the bits: <span class="math inline">\(1010_2\)</span>.</li>
+        <li>Adding <code>1</code> : <span class="math inline">\(1010_2 + 1 = 1011_2\)</span>.</li>
+        </ul>
+        <p>Thus, <span class="math inline">\(1011_2\)</span> is the 2’s complement representation of <code>-5</code>.</p>
+        <h1 id="bit-representation">Bit Representation</h1>
+        <p>In programming, an n‑bit integer is stored as a binary number with n bits. For example, a C++ <code>int</code> is a 32‑bit type; the number 42 is stored as: <span class="math display">\[ 00000000000000000000000000101010 \]</span></p>
+        <p>There are two representations:</p>
+        <ol type="1">
+        <li><strong>Signed Representation:</strong>
+        <ul>
+        <li>Range: <span class="math inline">\(-2^{n-1}\)</span> to <span class="math inline">\(2^{n-1}-1\)</span>.</li>
+        <li>The most significant bit (MSB) indicates the sign (0 for nonnegative, 1 for negative).</li>
+        <li>Negative numbers are stored in 2’s complement: invert all bits and add 1.</li>
+        <li>Example: For a 32‑bit int, <span class="math inline">\(-43\)</span> is represented such that the unsigned equivalent is <span class="math inline">\(2^{32}-43\)</span>.</li>
+        </ul></li>
+        </ol>
+        <div class="sourceCode" id="cb2"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> x <span class="op">=</span> <span class="op">-</span><span class="dv">43</span><span class="op">;</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="dt">unsigned</span> <span class="dt">int</span> y <span class="op">=</span> x<span class="op">;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>printf<span class="op">(</span><span class="st">&quot;</span><span class="sc">%d</span><span class="st">: </span><span class="sc">%b\n</span><span class="st">&quot;</span><span class="op">,</span> x<span class="op">,</span> x<span class="op">);</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>printf<span class="op">(</span><span class="st">&quot;</span><span class="sc">%d</span><span class="st">: </span><span class="sc">%b\n</span><span class="st">&quot;</span><span class="op">,</span> y<span class="op">);</span></span></code></pre></div>
+        <ol start="2" type="1">
+        <li><strong>Unsigned Representation:</strong>
+        <ul>
+        <li>Range: <span class="math inline">\(0\)</span> to <span class="math inline">\(2^n - 1\)</span>.</li>
+        <li>All bits contribute to the magnitude, allowing for a larger positive range.</li>
+        </ul></li>
+        </ol>
+        <div class="sourceCode" id="cb3"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> x <span class="op">=</span> <span class="dv">2147483647</span> <span class="co">// (2^31 - 1);</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>printf<span class="op">(</span><span class="st">&quot;</span><span class="sc">%d</span><span class="st">: </span><span class="sc">%b\n</span><span class="st">&quot;</span><span class="op">,</span> x<span class="op">,</span> x<span class="op">);</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>x <span class="op">+=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>printf<span class="op">(</span><span class="st">&quot;</span><span class="sc">%d</span><span class="st">: </span><span class="sc">%b\n</span><span class="st">&quot;</span><span class="op">,</span> x<span class="op">,</span> x<span class="op">);</span></span></code></pre></div>
+        <p>When a number exceeds these limits, it overflows. For instance, incrementing the maximum signed 32‑bit integer (<span class="math inline">\(2^{31}-1\)</span>) wraps around to <span class="math inline">\(-2^{31}\)</span>.</p>
+        <h1 id="bit-operations">Bit Operations</h1>
+        <p>Bitwise operations work on individual bits of binary representations. They execute directly on the hardware, making them as fast.</p>
+        <h2 id="and-operation">And operation</h2>
+        <p>The <strong>and</strong> operation <code>x &amp; y</code> produces a number that has one bits in positions where both <code>x</code> and <code>y</code> have one bits. For example, <code>21 &amp; 27</code> = <code>17</code>, because</p>
+        <p><span class="math display">\[
+        \begin{array}{c c c c c c}
+          \phantom{1} &amp; 1 &amp; 0 &amp; 1 &amp; 0 &amp; 1 \\
+          \&amp; &amp; 1 &amp; 1 &amp; 0 &amp; 1 &amp; 1 \\
+          \hline
+          = &amp; 1 &amp; 0 &amp; 0 &amp; 0 &amp; 1
+        \end{array}
+        \]</span></p>
+        <p><strong>Properties:</strong></p>
+        <ul>
+        <li><strong>Commutative:</strong> <span class="math inline">\(a \, \&amp; \, b = b \, \&amp; \, a\)</span></li>
+        <li><strong>Associative:</strong> <span class="math inline">\((a\, \&amp; \, b) \, \&amp; \, c = a \, \&amp; \, (b \, \&amp; \, c)\)</span></li>
+        <li><strong>Identity:</strong> <span class="math inline">\(a \, \&amp; \, 1...1 = a\)</span></li>
+        <li><strong>Annihilator:</strong> <span class="math inline">\(a \, \&amp; \, 0 = 0\)</span></li>
+        </ul>
+        <h2 id="or-operation">Or operation</h2>
+        <p>The or operation <code>x | y</code> produces a number that has one bits in positions where atleast one of x and y have one bits. For example, <code>21 | 27</code> = <code>31</code>, because</p>
+        <p><span class="math display">\[
+        \begin{array}{c c c c c c}
+          \phantom{1} &amp; 1 &amp; 0 &amp; 1 &amp; 0 &amp; 1 \\
+          | &amp; 1 &amp; 1 &amp; 0 &amp; 1 &amp; 1 \\
+          \hline
+          = &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1
+        \end{array}
+        \]</span></p>
+        <p><strong>Properties:</strong></p>
+        <ul>
+        <li><strong>Commutative:</strong> <span class="math inline">\(a \, | \, b = b \, | \, a\)</span></li>
+        <li><strong>Associative:</strong> <span class="math inline">\((a\, | \, b) \, | \, c = a \, | \, (b \, | \, c)\)</span></li>
+        <li><strong>Identity:</strong> <span class="math inline">\(a \, | \, 0 = a\)</span></li>
+        <li><strong>Annihilator:</strong> <span class="math inline">\(a \, | \, 1...1 = 1...1\)</span></li>
+        </ul>
+        <h2 id="xor-operation">Xor operation</h2>
+        <p>The xor operation x ^ y produces a number that has one bits in positions where exactly one of x and y have one bits. For example, <code>21 ^ 27</code> = <code>14</code>, because</p>
+        <p><span class="math display">\[
+        \begin{array}{c c c c c c}
+          \phantom{1} &amp; 1 &amp; 0 &amp; 1 &amp; 0 &amp; 1 \\
+          \wedge &amp; 1 &amp; 1 &amp; 0 &amp; 1 &amp; 1 \\
+          \hline
+          = &amp; 0 &amp; 1 &amp; 1 &amp; 1 &amp; 0
+        \end{array}
+        \]</span></p>
+        <p><strong>Properties:</strong></p>
+        <ul>
+        <li><strong>Commutative:</strong> <span class="math inline">\(a \, \wedge \, b = b \, \wedge \, a\)</span></li>
+        <li><strong>Associative:</strong> <span class="math inline">\((a\, \wedge \, b) \, \wedge \, c = a \, \wedge \, (b \, \wedge \, c)\)</span></li>
+        <li><strong>Identity:</strong> <span class="math inline">\(a \, \wedge \, 0 = a\)</span></li>
+        <li><strong>Self-inverse:</strong> <span class="math inline">\(a \, \wedge \, a = 0\)</span></li>
+        </ul>
+        <h2 id="not-operation">Not Operation</h2>
+        <p>The not operation <code>~x</code> produces a number where all the bits of x have been inverted. The formula <span class="math inline">\(\sim x = -x - 1\)</span> holds, for example, ~29 = 30.</p>
+        <p>The result of the not operation at the bit level depends on the length of the bit representation, because the operation inverts all bits. For example, if the numbers are 32-bit int numbers, the result is as follows: <span class="math display">\[ x = 29 \quad \text{(Binary: } 00000000000000000000000000011101 \text{)} \]</span> <span class="math display">\[ \sim x = -30 \quad \text{(Binary: } 11111111111111111111111111100010 \text{)} \]</span></p>
+        <p><strong>Properties:</strong></p>
+        <ul>
+        <li><strong>Involution:</strong> <span class="math inline">\(\sim(\sim a) = a\)</span>.</li>
+        <li><strong>Unary Operator:</strong> Operates on a single operand.</li>
+        </ul>
+        <h2 id="bit-shifts">Bit Shifts</h2>
+        <h3 id="left-bit-shift">Left Bit Shift (<code>&lt;&lt;</code>)</h3>
+        <ul>
+        <li><strong>Operation:</strong> <span class="math inline">\(x &lt;&lt; k\)</span> appends <span class="math inline">\(k\)</span> zero bits to the right of <span class="math inline">\(x\)</span>.</li>
+        <li><strong>Equivalent to:</strong> Multiplying <span class="math inline">\(x\)</span> by <span class="math inline">\(2^k\)</span>.</li>
+        <li><strong>Example:</strong> Let <span class="math inline">\(x = 14\)</span> (binary: <span class="math inline">\(1110_2\)</span>). Shifting left by <span class="math inline">\(k = 2\)</span> bits: <span class="math display">\[  1110_2 \rightarrow 111000_2 \quad \text{which equals } 56.\]</span></li>
+        </ul>
+        <h3 id="right-bit-shift">Right Bit Shift (<code>&gt;&gt;</code>)</h3>
+        <ul>
+        <li><strong>Operation:</strong> <span class="math inline">\(x &gt;&gt; k\)</span> removes the <span class="math inline">\(k\)</span> least significant bits from <span class="math inline">\(x\)</span>.</li>
+        <li><strong>Equivalent to:</strong> Dividing <span class="math inline">\(x\)</span> by <span class="math inline">\(2^k\)</span> and rounding down to an integer.</li>
+        <li><strong>Example:</strong> Let <span class="math inline">\(x = 49\)</span> (binary: <span class="math inline">\(110001_2\)</span>). Shifting right by <span class="math inline">\(k = 3\)</span> bits: <span class="math display">\[  110001_2 \rightarrow 110_2 \quad \text{which equals } 6.\]</span></li>
+        </ul>
+        <div class="sourceCode" id="cb4"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> _and <span class="op">=</span> <span class="dv">5</span> <span class="op">&amp;</span> <span class="dv">6</span><span class="op">;</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> _or  <span class="op">=</span> <span class="dv">5</span> <span class="op">|</span> <span class="dv">6</span><span class="op">;</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> _xor <span class="op">=</span> <span class="dv">5</span> <span class="op">^</span> <span class="dv">6</span><span class="op">;</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lshift <span class="op">=</span> <span class="dv">5</span> <span class="op">&lt;&lt;</span> <span class="dv">6</span><span class="op">;</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> rshift <span class="op">=</span> <span class="dv">5</span> <span class="op">&gt;&gt;</span> <span class="dv">6</span><span class="op">;</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> _not <span class="op">=</span> <span class="op">~</span><span class="dv">5</span><span class="op">;</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> s <span class="op">=</span> <span class="dv">34</span><span class="op">;</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>s <span class="op">=</span> s <span class="op">&lt;&lt;</span> <span class="dv">1</span><span class="op">;</span> <span class="co">// s * 2;</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="ot">assert</span><span class="op">(</span>s <span class="op">==</span> <span class="dv">68</span><span class="op">);</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>s <span class="op">=</span> s <span class="op">&gt;&gt;</span> <span class="dv">2</span><span class="op">;</span> <span class="co">// s / 4;</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="ot">assert</span><span class="op">(</span>s <span class="op">==</span> <span class="dv">17</span><span class="op">);</span></span></code></pre></div>
+        <h1 id="applications-tricks">Applications / Tricks</h1>
+        <p>Let <code>S</code> be a number.</p>
+        <ol type="1">
+        <li><p>To set/turn on the j-th item (0-based indexing) of the <code>S</code>.</p>
+        <div class="sourceCode" id="cb5"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> setBit<span class="op">(</span><span class="dt">int</span> S<span class="op">,</span> <span class="dt">int</span> j<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">(</span>S <span class="op">|</span> <span class="op">(</span><span class="dv">1</span> <span class="op">&lt;&lt;</span> j<span class="op">));</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> S <span class="op">=</span> <span class="bn">0b00101</span><span class="op">;</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="ot">assert</span><span class="op">(</span>setBit<span class="op">(</span>S<span class="op">,</span> <span class="dv">3</span><span class="op">)</span> <span class="op">==</span> <span class="bn">0b01101</span><span class="op">);</span></span></code></pre></div></li>
+        <li><p>To check if the j-th item of the <code>S</code> is on.</p>
+        <div class="sourceCode" id="cb6"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> isOn<span class="op">(</span><span class="dt">int</span> S<span class="op">,</span> <span class="dt">int</span> j<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">(</span>S <span class="op">&amp;</span> <span class="op">(</span><span class="dv">1</span> <span class="op">&lt;&lt;</span> j<span class="op">));</span> <span class="co">// == 0 ? OFF : ON;</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">// return (S &gt;&gt; x) &amp; 1; // == 0 ? OFF: ON;</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> S <span class="op">=</span> <span class="bn">0b00101</span><span class="op">;</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="ot">assert</span><span class="op">(</span>isOn<span class="op">(</span>S<span class="op">,</span> <span class="dv">2</span><span class="op">)</span> <span class="op">!=</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="ot">assert</span><span class="op">(</span>isOn<span class="op">(</span>S<span class="op">,</span> <span class="dv">3</span><span class="op">)</span> <span class="op">==</span> <span class="dv">0</span><span class="op">);</span></span></code></pre></div></li>
+        <li><p>To clear/turn off the j-th item of the <code>S</code>.</p>
+        <div class="sourceCode" id="cb7"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> clearBit<span class="op">(</span><span class="dt">int</span> S<span class="op">,</span> <span class="dt">int</span> j<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">(</span>S <span class="op">&amp;</span> <span class="op">~(</span><span class="dv">1</span> <span class="op">&lt;&lt;</span> j<span class="op">));</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></li>
+        <li><p>To toggle (flip the status of) the j-th item of the <code>S</code>.</p>
+        <div class="sourceCode" id="cb8"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> toogleBit<span class="op">(</span><span class="dt">int</span> S<span class="op">,</span> <span class="dt">int</span> j<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">(</span>S <span class="op">^</span> <span class="op">(</span><span class="dv">1</span> <span class="op">&lt;&lt;</span> j<span class="op">));</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></li>
+        <li><p>To determine the number of set bits of <code>S</code>.</p>
+        <div class="sourceCode" id="cb9"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> countSetBits<span class="op">(</span><span class="dt">int</span> S<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> count <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="op">(</span>S<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>        count <span class="op">+=</span> S <span class="op">%</span> <span class="dv">2</span><span class="op">;</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>        S <span class="op">&gt;&gt;=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> count<span class="op">;</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> countSetBits2<span class="op">(</span><span class="dt">int</span> S<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> count <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> <span class="dv">32</span><span class="op">;</span> i<span class="op">++)</span> </span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>        count <span class="op">+=</span> isOn<span class="op">(</span>S<span class="op">,</span> i<span class="op">);</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> count<span class="op">;</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a><span class="ot">assert</span><span class="op">(</span>countSetBits<span class="op">(</span><span class="bn">0b00101</span><span class="op">)</span> <span class="op">==</span> <span class="dv">2</span><span class="op">);</span></span></code></pre></div></li>
+        <li><p>To get the value of the least significant bit (LSB) of <code>S</code> that is on (first from the right).</p>
+        <div class="sourceCode" id="cb10"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> LSOne<span class="op">(</span><span class="dt">int</span> S<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">(</span>S <span class="op">&amp;</span> <span class="op">-</span>S<span class="op">);</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="ot">assert</span><span class="op">(</span>LSOne<span class="op">(</span><span class="bn">0b101000</span><span class="op">)</span> <span class="op">==</span> <span class="bn">0b1000</span><span class="op">);</span></span></code></pre></div></li>
+        <li><p>To turn on <em>all</em> bits in <code>S</code>, sizeof(<code>S</code>) = <code>n</code> (eg. 32-bit).</p>
+        <div class="sourceCode" id="cb11"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> setAll<span class="op">(</span><span class="dt">int</span> n<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">(</span><span class="dv">1</span> <span class="op">&lt;&lt;</span> n<span class="op">)</span> <span class="op">-</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="ot">assert</span><span class="op">(</span>setAll<span class="op">(</span><span class="dv">4</span><span class="op">)</span> <span class="op">==</span> <span class="bn">0b1111</span><span class="op">);</span></span></code></pre></div></li>
+        <li><p>To obtain the remainder (modulo) of <code>S</code> when it is divided by <code>N</code> (<code>N</code> is a power of 2).</p>
+        <div class="sourceCode" id="cb12"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> modulo<span class="op">(</span><span class="dt">int</span> S<span class="op">,</span> <span class="dt">int</span> N<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">(</span>S <span class="op">&amp;</span> <span class="op">(</span>N <span class="op">-</span> <span class="dv">1</span><span class="op">));</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="ot">assert</span><span class="op">(</span>modulo<span class="op">(</span><span class="bn">0b111</span><span class="op">,</span> <span class="dv">4</span><span class="op">)</span> <span class="op">==</span> <span class="bn">0b11</span><span class="op">);</span></span></code></pre></div></li>
+        <li><p>To determine if <code>S</code> is power of 2.</p>
+        <div class="sourceCode" id="cb13"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="dt">bool</span> isPowerOfTwo<span class="op">(</span><span class="dt">int</span> S<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">(</span>S <span class="op">&amp;</span> <span class="op">(</span>S <span class="op">-</span> <span class="dv">1</span><span class="op">))</span> <span class="op">==</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="ot">assert</span><span class="op">(</span>isPowerOfTwo<span class="op">(</span><span class="bn">0b10000</span><span class="op">));</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="ot">assert</span><span class="op">(</span><span class="kw">not</span> isPowerOfTwo<span class="op">(</span><span class="bn">0b10100</span><span class="op">));</span></span></code></pre></div></li>
+        <li><p>Turn off the last one in <code>S</code>.</p>
+        <div class="sourceCode" id="cb14"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> turnOffLastBit<span class="op">(</span><span class="dt">int</span> S<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">(</span>S <span class="op">&amp;</span> <span class="op">(</span>S <span class="op">-</span> <span class="dv">1</span><span class="op">));</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="ot">assert</span><span class="op">(</span>turnOffLastBit<span class="op">(</span><span class="bn">0b101000</span><span class="op">)</span> <span class="op">==</span> <span class="bn">0b100000</span><span class="op">);</span></span></code></pre></div>
+        <ul>
+        <li><p>To count set bits.</p>
+        <div class="sourceCode" id="cb15"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> countSetBits<span class="op">(</span><span class="dt">int</span> S<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> count <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="op">(</span>S<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>        S <span class="op">=</span> turnOffLastBit<span class="op">(</span>n <span class="op">-</span> <span class="dv">1</span><span class="op">);</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>        count <span class="op">+=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> count<span class="op">;</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></li>
+        </ul></li>
+        <li><p>Turn on the last zero in <code>S</code>.</p>
+        <div class="sourceCode" id="cb16"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> turnOnLastZero<span class="op">(</span><span class="dt">int</span> S<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">(</span>S <span class="op">|</span> <span class="op">(</span>S <span class="op">+</span> <span class="dv">1</span><span class="op">));</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="ot">assert</span><span class="op">(</span>turnOnLastZero<span class="op">(</span><span class="bn">0b101001</span><span class="op">)</span> <span class="op">==</span> <span class="bn">0b101011</span><span class="op">);</span></span></code></pre></div></li>
+        <li><p>Turn off the last consecutive run of ones in <code>S</code>.</p>
+        <div class="sourceCode" id="cb17"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> turnOffLastConsecutiveBits<span class="op">(</span><span class="dt">int</span> S<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">(</span>S <span class="op">&amp;</span> <span class="op">(</span>S <span class="op">+</span> <span class="dv">1</span><span class="op">));</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="ot">assert</span><span class="op">(</span>turnOffLastConsecutiveBits<span class="op">(</span><span class="bn">0b100111</span><span class="op">)</span> <span class="op">==</span> <span class="bn">0b100000</span><span class="op">);</span></span></code></pre></div></li>
+        <li><p>Turn off the last consecutive run of zeros in <code>S</code>.</p>
+        <div class="sourceCode" id="cb18"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> turnOnLastConsecutiveZeroes<span class="op">(</span><span class="dt">int</span> S<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">(</span>S <span class="op">|</span> <span class="op">(</span>S <span class="op">-</span> <span class="dv">1</span><span class="op">));</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="ot">assert</span><span class="op">(</span>turnOnLastConsecutiveZeroes<span class="op">(</span><span class="bn">0b101000</span><span class="op">)</span> <span class="op">==</span> <span class="bn">0b101111</span><span class="op">);</span></span></code></pre></div></li>
+        </ol>
+        <h2 id="application-to-arithmetic">Application to Arithmetic</h2>
+        <ol type="1">
+        <li><p>To add two numbers.</p>
+        <div class="sourceCode" id="cb19"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> add<span class="op">(</span><span class="dt">int</span> a<span class="op">,</span> <span class="dt">int</span> b<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="op">(</span>b<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> carry <span class="op">=</span> <span class="op">(</span>a <span class="op">&amp;</span> b<span class="op">)</span> <span class="op">&lt;&lt;</span> <span class="dv">1</span><span class="op">;</span> <span class="co">// Calculate carry</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>        a <span class="op">=</span> a <span class="op">^</span> b<span class="op">;</span> <span class="co">// Sum without carry</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>        b <span class="op">=</span> carry<span class="op">;</span> <span class="co">// Assign carry to b</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> a<span class="op">;</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></li>
+        <li><p>To subtract two numbers.</p>
+        <div class="sourceCode" id="cb20"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> subtract<span class="op">(</span><span class="dt">int</span> a<span class="op">,</span> <span class="dt">int</span> b<span class="op">)</span> <span class="op">{</span> <span class="co">// a - b;</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="op">(</span>b<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> borrow <span class="op">=</span> <span class="op">(~</span>a <span class="op">&amp;</span> b<span class="op">)</span> <span class="op">&lt;&lt;</span> <span class="dv">1</span><span class="op">;</span><span class="co">// Calculate borrow</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>        a <span class="op">=</span> a <span class="op">^</span> b<span class="op">;</span>  <span class="co">// Subtract without borrow</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>        b <span class="op">=</span> borrow<span class="op">;</span>  <span class="co">// Assign borrow to b</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> a<span class="op">;</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></li>
+        <li><p>To mulitply two numbers.</p>
+        <div class="sourceCode" id="cb21"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> multiply<span class="op">(</span><span class="dt">int</span> a<span class="op">,</span> <span class="dt">int</span> b<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> result <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="op">(</span>b<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>b <span class="op">&amp;</span> <span class="dv">1</span><span class="op">)</span>  <span class="co">// If LSB of b is 1, add a to result</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>            result <span class="op">=</span> result <span class="op">+</span> a<span class="op">;</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>        a <span class="op">=</span> a <span class="op">&lt;&lt;</span> <span class="dv">1</span><span class="op">;</span>  <span class="co">// Double a</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>        b <span class="op">=</span> b <span class="op">&gt;&gt;</span> <span class="dv">1</span><span class="op">;</span>  <span class="co">// Halve b</span></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> result<span class="op">;</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></li>
+        <li><p>To divide two numbers.</p>
+        <div class="sourceCode" id="cb22"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> divide<span class="op">(</span><span class="dt">int</span> dividend<span class="op">,</span> <span class="dt">int</span> divisor<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> quotient <span class="op">=</span> <span class="dv">0</span><span class="op">,</span> sign <span class="op">=</span> <span class="op">((</span>dividend <span class="op">&lt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">^</span> <span class="op">(</span>divisor <span class="op">&lt;</span> <span class="dv">0</span><span class="op">))</span> <span class="op">?</span> <span class="op">-</span><span class="dv">1</span> <span class="op">:</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">unsigned</span> <span class="dt">int</span> a <span class="op">=</span> abs<span class="op">(</span>dividend<span class="op">),</span> b <span class="op">=</span> abs<span class="op">(</span>divisor<span class="op">);</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">31</span><span class="op">;</span> i <span class="op">&gt;=</span> <span class="dv">0</span><span class="op">;</span> i<span class="op">--)</span> <span class="op">{</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">((</span>a <span class="op">&gt;&gt;</span> i<span class="op">)</span> <span class="op">&gt;=</span> b<span class="op">)</span> <span class="op">{</span>  <span class="co">// Check if divisor fits in (shifted) dividend</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>            a <span class="op">-=</span> <span class="op">(</span>b <span class="op">&lt;&lt;</span> i<span class="op">);</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>            quotient <span class="op">+=</span> <span class="op">(</span><span class="dv">1</span> <span class="op">&lt;&lt;</span> i<span class="op">);</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> sign <span class="op">*</span> quotient<span class="op">;</span></span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></li>
+        <li><p>To check parity of given <code>S</code>.</p>
+        <div class="sourceCode" id="cb23"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> isOdd<span class="op">(</span><span class="dt">int</span> S<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> isOn<span class="op">(</span>S<span class="op">,</span> <span class="dv">0</span><span class="op">);</span> <span class="co">// (S &amp; 1);</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></li>
+        <li><p>To swap two numbers.</p>
+        <div class="sourceCode" id="cb24"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> swap<span class="op">(</span><span class="dt">int</span><span class="op">&amp;</span> a<span class="op">,</span> <span class="dt">int</span><span class="op">&amp;</span> b<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> a <span class="op">^</span> b<span class="op">;</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> a <span class="op">^</span> b<span class="op">;</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> a <span class="op">^</span> b<span class="op">;</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></li>
+        </ol>
+        <h2 id="application-to-sets-bitmasking">Application to sets (Bitmasking)</h2>
+        <ol type="1">
+        <li><p>To represent a set in form of bitmask. A subset of <code>{0, 1, 2, ..., n - 1}</code> can be efficently represented as an <strong>n-bit interger</strong>, which each <strong>1-bit</strong> indicates the presence of an element in the subset.</p>
+        <p>Example, represent <code>{1, 3, 4, 8}</code></p>
+        <pre><code> - Bit mask: `0b00000000000000000000000100011010`
+ - Corresponding integer: `282`</code></pre>
+        <div class="sourceCode" id="cb26"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> x <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> <span class="co">// intitalize</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>x <span class="op">|=</span> <span class="op">(</span><span class="dv">1</span> <span class="op">&lt;&lt;</span> <span class="dv">1</span><span class="op">);</span> <span class="co">// Add `1`</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>x <span class="op">|=</span> <span class="op">(</span><span class="dv">1</span> <span class="op">&lt;&lt;</span> <span class="dv">3</span><span class="op">);</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>x <span class="op">|=</span> <span class="op">(</span><span class="dv">1</span> <span class="op">&lt;&lt;</span> <span class="dv">4</span><span class="op">);</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>x <span class="op">|=</span> <span class="op">(</span><span class="dv">1</span> <span class="op">&lt;&lt;</span> <span class="dv">8</span><span class="op">);</span></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a><span class="ot">assert</span><span class="op">(</span>countSetBits<span class="op">(</span>x<span class="op">)</span> <span class="op">==</span> <span class="dv">4</span><span class="op">);</span></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> <span class="dv">32</span><span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>isOn<span class="op">(</span>x<span class="op">,</span> i<span class="op">))</span> printf<span class="op">(</span><span class="st">&quot;</span><span class="sc">%d</span><span class="st"> &quot;</span><span class="op">,</span> i<span class="op">);</span></span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="co">// output: 1 3 4 8</span></span></code></pre></div></li>
+        <li><p>Determine set operations.</p>
+        <table>
+        <thead>
+        <tr class="header">
+        <th></th>
+        <th>set syntax</th>
+        <th>bit syntax</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td>intersection</td>
+        <td><span class="math inline">\(a \cap b\)</span></td>
+        <td><span class="math inline">\(a \&amp; b\)</span></td>
+        </tr>
+        <tr class="even">
+        <td>union</td>
+        <td><span class="math inline">\(a \cup b\)</span></td>
+        <td><span class="math inline">\(a | b\)</span></td>
+        </tr>
+        <tr class="odd">
+        <td>complement</td>
+        <td><span class="math inline">\(\bar{a}\)</span></td>
+        <td><span class="math inline">\(\sim a\)</span></td>
+        </tr>
+        <tr class="even">
+        <td>difference</td>
+        <td><span class="math inline">\(a \setminus b\)</span></td>
+        <td><span class="math inline">\(a \&amp; (\sim b)\)</span></td>
+        </tr>
+        </tbody>
+        </table></li>
+        <li><p>To enumerate all subsets of {0, 1, …, n - 1}.</p>
+        <div class="sourceCode" id="cb27"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> b <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> b <span class="op">&lt;</span> <span class="op">(</span><span class="dv">1</span> <span class="op">&lt;&lt;</span> n<span class="op">);</span> b<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">// process subset `b`</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></li>
+        <li><p>To enumerate all subsets with exactly k elements.</p>
+        <div class="sourceCode" id="cb28"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> b <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> b <span class="op">&lt;</span> <span class="op">(</span><span class="dv">1</span> <span class="op">&lt;&lt;</span> n<span class="op">);</span> b<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>countSetBits<span class="op">(</span>b<span class="op">)</span> <span class="op">==</span> k<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>        <span class="co">// process subset `b`</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></li>
+        <li><p>To check <span class="math inline">\(x \subseteq y\)</span>.</p>
+        <div class="sourceCode" id="cb29"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="dt">bool</span> isSubset<span class="op">(</span><span class="dt">int</span> x<span class="op">,</span> <span class="dt">int</span> y<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">(</span>x <span class="op">&amp;</span> y<span class="op">)</span> <span class="op">==</span> x<span class="op">;</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a><span class="ot">assert</span><span class="op">(</span>isSubset<span class="op">(</span><span class="bn">0b00101</span><span class="op">,</span> <span class="bn">0b11101</span><span class="op">));</span></span></code></pre></div></li>
+        <li><p>To enumerate all <em>proper</em> subsets of a given a bitmask <code>S</code>.</p>
+        <div class="sourceCode" id="cb30"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> b <span class="op">=</span> S <span class="op">-</span> <span class="dv">1</span><span class="op">;</span> b <span class="op">&gt;</span> <span class="dv">0</span><span class="op">;</span> b <span class="op">=</span> S <span class="op">&amp;</span> <span class="op">(</span>b <span class="op">-</span> <span class="dv">1</span><span class="op">))</span> <span class="op">{</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">// process subset `b` of `S`</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></li>
+        <li><p>Given any set of n elements, iterate through all the subsets (submasks) of all the subsets (submasks) of size n (TC: <span class="math inline">\(O(3^n)\)</span>).</p>
+        <div class="sourceCode" id="cb31"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> S <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> S <span class="op">&lt;</span> <span class="op">(</span><span class="dv">1</span> <span class="op">&lt;&lt;</span> n<span class="op">);</span> S<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">// process through all submasks of S</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> b <span class="op">=</span> S<span class="op">;</span> b <span class="op">&gt;</span> <span class="dv">0</span><span class="op">;</span> b <span class="op">=</span> S <span class="op">&amp;</span> <span class="op">(</span>b <span class="op">-</span> <span class="dv">1</span><span class="op">))</span> <span class="op">{</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>        <span class="co">// process through submasks of S.</span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></li>
+        </ol>
+        <h2 id="c-libraries">C++ Libraries</h2>
+        <ol type="1">
+        <li>GNU C++ compiler built-in bit manipulation.
+        <ul>
+        <li><code>__builtin_popcount(unsigned int)</code> returns the number of set bits.</li>
+        <li><code>__builtin_ffs(int)</code> finds the index of the first(most right) set bit.</li>
+        <li><code>__builtin_clz(unsigned int)</code> returns the count of leading zeros(CLZ).</li>
+        <li><code>__builtin_ctz(unsigned int)</code> returns the count of trailing zeros(CTZ).</li>
+        <li><code>__builtin_parity(int)</code> the parity (even or odd) of the number of ones in the bit repersentation.</li>
+        </ul></li>
+        <li><a href="https://en.cppreference.com/w/cpp/utility/bitset"><code>bitset</code></a> in C++.</li>
+        <li><a href="https://en.cppreference.com/w/cpp/utility/bit"><code>bit</code></a> in C++20.</li>
+        </ol>
+        <h2 id="additional-tricks">Additional tricks</h2>
+        <ol type="1">
+        <li>Find the position of the first set bit (0-based index)</li>
+        <li>Find the position of the highest set bit (leftmost 1)</li>
+        <li>Find the position of the first 0 (0-based index)</li>
+        <li>Extract the most significant bit (MSB)</li>
+        <li>Get the next higher number with the same number of set bits</li>
+        <li>Clear all bits except the rightmost set bit (Isolate LSB)</li>
+        <li>Clear all bits except the leftmost set bit</li>
+        <li>Set all bits from LSB to position <code>j</code> (inclusive)</li>
+        <li>Set all bits from MSB to position <code>j</code> (inclusive)</li>
+        <li>Find the next power of 2 greater than or equal to <code>S</code>.</li>
+        <li>Find the previous power of 2 less than or equal to <code>S</code>.</li>
+        </ol>
+    </main>
+
+        <script>
+        ; (function () {
+            // Non-essential if user has JavaScript off. Just makes checkboxes look nicer.
+            var selector = '.task-list > li > input[type="checkbox"]';
+            var checkboxes = document.querySelectorAll(selector);
+            Array.from(checkboxes).forEach((checkbox) => {
+                var wasChecked = checkbox.checked;
+                checkbox.disabled = false;
+                checkbox.addEventListener('click', (ev) => { ev.target.checked = wasChecked });
+            });
+        })();
+    </script>
+
+    </body>
+
+</html>
